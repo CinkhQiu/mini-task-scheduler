@@ -7,6 +7,7 @@
 #include <mutex>
 #include <queue>
 #include <vector>
+#include <functional>
 
 namespace scheduler {
 
@@ -29,9 +30,9 @@ public:
 
     std::size_t size() const;
 
-    void wait();
+    void wait(const std::function<bool()>& stop_predicate);
 
-    void waitUntil(TimePoint time_point);
+    void waitUntil(TimePoint time_point, const std::function<bool()>& stop_predicate);
 
     void notifyOne();
 

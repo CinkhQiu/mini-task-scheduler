@@ -42,16 +42,18 @@ std::size_t TaskQueue::size() const {
     return queue_.size();
 }
 
-void TaskQueue::wait() {
+void TaskQueue::wait(const std::function<bool()>& stop_predicate) {
     std::unique_lock<std::mutex> lock(mutex_);
-    cv_.wait(lock, [this]() {
-        return !queue_.empty();
+    cv_.wait(lock, [this, &stop_predicate]() {
+        return !queue_.empty() || stop_predicate();
     });
 }
 
-void TaskQueue::waitUntil(TimePoint time_point) {
+void TaskQueue::waitUntil(TimePoint time_point, const std::function<bool()>& stop_predicate) {
     std::unique_lock<std::mutex> lock(mutex_);
-    cv_.wait_until(lock, time_point);
+    cv_.wait_until(lock, time_point, [this, &stop_predicate]() {
+        return !queue_.empty() || stop_predicate();
+    });
 }
 
 void TaskQueue::notifyOne() {

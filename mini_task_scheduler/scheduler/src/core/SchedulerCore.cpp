@@ -52,14 +52,18 @@ void SchedulerCore::run() {
         TaskPtr task = task_queue_.top();
 
         if (!task) {
-            task_queue_.wait();
+            task_queue_.wait([this]() {
+                return !running_.load(std::memory_order_relaxed);
+            });
             continue;
         }
 
         TimePoint now = Clock::now();
 
         if (!shouldRunNow(task, now)) {
-            task_queue_.waitUntil(task->nextRunTime());
+            task_queue_.waitUntil(task->nextRunTime(), [this]() {
+                return !running_.load(std::memory_order_relaxed);
+            });
             continue;
         }
 

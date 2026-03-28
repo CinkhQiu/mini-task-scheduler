@@ -3,6 +3,7 @@
 #include "scheduler/task/Task.h"
 #include "scheduler/task/TaskQueue.h"
 #include "scheduler/thread_pool/ThreadPool.h"
+#include "scheduler/task/TaskExecutor.h"
 
 #include <atomic>
 #include <memory>
@@ -46,6 +47,7 @@ private:
     TaskQueue task_queue_;
     std::shared_ptr<ThreadPool> thread_pool_;
     std::thread worker_;
+    TaskExecutor executor_;
 };
 
 }  // namespace scheduler

@@ -97,8 +97,8 @@ void SchedulerCore::dispatchTask(const TaskPtr& task) {
         return;
     }
 
-    thread_pool_->submit([task]() {
-        task->execute();
+    thread_pool_->submit([this, task]() {
+        executor_.execute(task);
     });
 }
 

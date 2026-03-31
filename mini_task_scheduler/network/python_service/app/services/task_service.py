@@ -13,4 +13,7 @@ class TaskService:
             success=True,
             message=f"Task '{request.task_name}' submitted successfully",
             task_id=fake_task_id,
+            task_name=request.task_name,
+            task_type=request.task_type.value,
+            priority=request.priority,
         )

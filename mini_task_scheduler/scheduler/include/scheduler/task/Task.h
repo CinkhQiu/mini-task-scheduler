@@ -15,6 +15,14 @@ enum class TaskType {
     Periodic
 };
 
+enum class TaskStatus {
+    Pending,
+    Running,
+    Completed,
+    Failed,
+    Canceled
+};
+
 class Task {
 public:
     using TaskId = std::uint64_t;
@@ -38,7 +46,8 @@ public:
           priority_(priority),
           callback_(std::move(callback)),
           name_(std::move(name)),
-          canceled_(false) {}
+          canceled_(false),
+          task_status_(TaskStatus::Pending) {}
 
     ~Task() = default;
 
@@ -71,6 +80,14 @@ public:
         return canceled_.load(std::memory_order_relaxed);
     }
 
+    TaskStatus taskStatus() const noexcept {
+        return task_status_.load(std::memory_order_relaxed);
+    }
+
+    void setTaskStatus(TaskStatus status) noexcept {
+        task_status_.store(status, std::memory_order_relaxed);
+    }
+
     bool isPeriodic() const noexcept {
         return type_ == TaskType::Periodic;
     }
@@ -78,6 +95,7 @@ public:
 public:
     void cancel() noexcept {
         canceled_.store(true, std::memory_order_relaxed);
+        task_status_.store(TaskStatus::Canceled, std::memory_order_relaxed);
     }
 
     void execute() const {
@@ -105,6 +123,7 @@ private:
     Callback callback_;
     std::string name_;
     std::atomic<bool> canceled_;
+    std::atomic<TaskStatus> task_status_;
 };
 
 using TaskPtr = std::shared_ptr<Task>;
